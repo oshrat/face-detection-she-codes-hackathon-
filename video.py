@@ -1,11 +1,8 @@
 import cv2
-import sys
-import numpy as np
+#import numpy as np
+from PIL import Image
 
 FRONT_PATH = 'models/haarcascade_frontalface_default.xml'
-SMILE_PATH = 'models/haarcascade_smile.xml'
-smileCascade = cv2.CascadeClassifier(SMILE_PATH)
-faceCascade = cv2.CascadeClassifier(FRONT_PATH)
 
 def create_rectangle(faces, frame):
     # Draw a rectangle around the faces
@@ -17,22 +14,26 @@ def crop(faces, frame):
     for (x, y, w, h) in faces:
         cropped = frame[ y: y + h, x: x + w]
         cv2.imshow("cropped", cropped)
-        return cropped
+    return cropped
+
+def save_img(cropped, i):
+    im = Image.fromarray(cropped)
+    im.save("cropped" + str(i) + ".png")
 
 def capture_video():
+    faceCascade = cv2.CascadeClassifier(FRONT_PATH)
     # creating a face cascade
     video_capture = cv2.VideoCapture(0)
-    pics = []
     i = 0
     while True:
         # Capture frame-by-frame
         ret, frame = video_capture.read()
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces, counter = faceCascade.detectMultiScale2(gray, 1.3, 5)
-        crop(faces, frame)
+        cropped = crop(faces, frame)
+        save_img(cropped, i)
         #cv2.imshow("cropped", cropped)
-        #pics[i] = crop(faces, frame)
-        #i += 1
+        i += 1
         create_rectangle(faces, frame)
         # Display the resulting frame
         cv2.imshow('Video', frame)
